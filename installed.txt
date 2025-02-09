@@ -1,0 +1,11 @@
+g++
+cmake
+libgl1-mesa-dev 
+xorg-dev
+build-essential
+libx11-dev
+xorg-dev
+libglfw3
+libglfw3-dev
+mesa-common-dev
+mesa-utils
