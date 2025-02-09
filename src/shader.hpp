@@ -42,7 +42,6 @@ public:
         ID = glCreateProgram();
         glAttachShader(ID, compute);
         glLinkProgram(ID);
-        std::cout << "checking :" << computePath << std::endl;
         checkCompileErrors(ID, "PROGRAM");
         // delete the shaders as they're linked into our program now and no longer necessery
         glDeleteShader(compute);

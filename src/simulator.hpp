@@ -7,8 +7,8 @@
 #include "camera.hpp"
 #include "shader.hpp"
 
-#define WIDTH 800
-#define HEIGHT 800
+#define WIDTH 1000
+#define HEIGHT 1000
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -23,25 +23,28 @@ struct Simulator {
     GLFWwindow* window;
     GLuint uboMatrices;
 
-    Simulator() {}
-    
-    int run() {
+    Simulator() {
         if (!glfwInit()) {
             std::cerr << "Failed to initialize GLFW!" << std::endl;
-            return -1;
+            throw std::runtime_error("Failed to initialize GLFW!");
         }
     
         window = glfwCreateWindow(WIDTH, HEIGHT, "OpenGL Window", nullptr, nullptr);
         if (!window) {
             std::cerr << "Failed to create GLFW window!" << std::endl;
             glfwTerminate();
-            return -1;
+            throw std::runtime_error("Failed to create GLFW window!");
         }
     
         glfwMakeContextCurrent(window);
         gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+        // enable compute shaders
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     
         // init shader matrices buffer
         glGenBuffers(1, &uboMatrices);
@@ -52,7 +55,7 @@ struct Simulator {
 
         glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4) + sizeof(glm::vec3));
 
-        glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+        glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.01f, 1000.0f);
 
         glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(proj));
@@ -65,9 +68,13 @@ struct Simulator {
 
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // enable gl_PointSize
 
-        camera = std::make_unique<Camera>(glm::vec3{0.f, 0.f, 0.f});
-        points = std::make_unique<Points>(100);
+        glfwSetCursorPos(window, WIDTH/2, HEIGHT/2);
+
+        camera = std::make_unique<Camera>(glm::vec3{-80.0f, 0.f, 1.5f}, 0.0f, 0.0f);
+        points = std::make_unique<Points>(20000);
+    }
     
+    int run() {
         float oldTime = 0.0f;
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
@@ -76,7 +83,7 @@ struct Simulator {
             float newTime = glfwGetTime();
             this->dt = newTime - oldTime;
             oldTime = newTime;
-            float fps = 1 / dt;
+            // float fps = 1 / dt;
             // std::cout<< "FPS: " << fps << std::endl;
 
             processInput();
@@ -85,10 +92,9 @@ struct Simulator {
             glm::mat4 view = camera->getView();
             glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
             glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
             points->draw();
-     
+            
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
@@ -112,14 +118,6 @@ struct Simulator {
     
     void processInput() {
         handleMouse();
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            }
-            else {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            }
-        }
     
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
             camera->handleKeyInput(Camera::InputEvent::FORWARDS);

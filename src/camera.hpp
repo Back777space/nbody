@@ -4,17 +4,22 @@
 #include "include/glm/gtc/matrix_transform.hpp"
 #include "include/glm/gtc/type_ptr.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include "include/glm/gtx/string_cast.hpp"
+
 class Camera {
     private:
-        float sensitivity = 0.05f;
+        float sensitivity = 0.10f;
+        float speed = 50.0f;
 
-        float speed = 3.0f;
+        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f); //  normalized up-direction
+
         glm::vec3 movingDirection = {0.f, 0.f, 0.f};
-
+        glm::vec3 direction = {0.0, 0.0, 0.0}; // normalized direction the camera is pointing to
         glm::vec3 position; // position of camera
 
-        float yaw;   // degrees around the y-axis
-        float pitch; // degrees around the x-axis
+        float yaw = 0.f;   // degrees around the y-axis
+        float pitch = 0.f; // degrees around the x-axis
 
         // screen coordinates
         float lastX = 0.0f;
@@ -27,18 +32,11 @@ class Camera {
             directionTemp.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
             this->direction = glm::normalize(directionTemp);
         }
-
-    protected:
-        void setPosition(glm::vec3 position) {
-            this->position = position;
-        }
-        void incrementPosition(glm::vec3 position) {
-            std::cout << "increment pos" << std::endl;
-            this->position += position;
+        
+        void incrementPosition(glm::vec3 deltaPos) {
+            position += deltaPos;
         }
 
-        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f); //  normalized up-direction
-        glm::vec3 direction;                        // normalized direction the camera is pointing to
 
     public:
         enum class InputEvent {
@@ -55,6 +53,11 @@ class Camera {
             float yaw = -90.0f,
             float pitch = 0.0f
         ) : position{position} {
+
+            lastX = 400.0f; 
+            lastY = 400.0f; 
+            this->setDirection(yaw, pitch);
+
             this->setDirection(yaw, pitch);
         }
 
@@ -70,12 +73,10 @@ class Camera {
             yaw += xOffset * sensitivity;
             pitch += yOffset * sensitivity;
         
-            if (pitch > 89.0f) {
+            if (pitch > 89.0f) 
                 pitch = 89.0f;
-            }
-            if (pitch < -89.0f) {
+            if (pitch < -89.0f) 
                 pitch = -89.0f;
-            }
             setDirection(yaw, pitch);
         }
 
