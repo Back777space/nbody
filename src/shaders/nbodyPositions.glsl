@@ -17,5 +17,6 @@ void main() {
     uint tid = gl_GlobalInvocationID.x;
     if (tid >= particleAmt) return;
 
+    // maybe change to p0 + v0*dt + a*dt² ?
     positions[tid] += velocities[tid] * dt;
 }

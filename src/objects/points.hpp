@@ -26,13 +26,15 @@ struct Points {
         velocities = std::vector<glm::vec4>(amt, glm::vec4(0.f));
         particleAmt = amt;
 
-        initPositions();
+        // initPositions();
 
         // generateCubePoints(
         //     amt,                                     
         //     glm::vec3(1.5f, 1.5f, 1.5f),        
         //     glm::vec3(7.5f, 7.5f, 7.5f)    
         // );
+
+        initializeGalaxy();
         
         glGenBuffers(1, &positionsBuffer);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, positionsBuffer);
@@ -95,6 +97,22 @@ struct Points {
         }
     }
 
+    void initializeGalaxy() {
+        for (size_t i = 0; i < particleAmt; i++) {
+            float distrFact = std::sqrt(i);
+            float phi = randFloat(2*PI);
+            float theta = randFloat(2*PI);
+            float r = randFloat(1);
+            glm::vec4 pos = glm::vec4(
+                100.f,
+                std::sin(phi) * r * distrFact,
+                std::cos(phi) * r * distrFact,
+                1.f
+            ) ;
+            positions[i] = std::move(pos);
+        }
+    }
+    
     void generateCubePoints(
         int totalPoints,
         const glm::vec3& center = glm::vec3(0.0f),

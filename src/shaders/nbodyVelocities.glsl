@@ -13,25 +13,46 @@ layout (binding = 1, std430) buffer positionsBuffer {
 uniform int particleAmt;
 uniform float dt;
 
-const float MASS = 10;
-const float G = 0.0015;
+shared uint sharedData[];
+
+const float MASS = 0.01;
+const float MINDIST = 0.01;
+
+shared vec4 sharedPositions[512];  
 
 void main() {
     uint tid = gl_GlobalInvocationID.x;
+    uint lid = gl_LocalInvocationID.x;
+
     if (tid >= particleAmt) return;
 
     vec4 threadPos = positions[tid];
     vec4 force = vec4(0.0);
 
-    for (uint i = 0; i < particleAmt; i++) {
-        if (i == tid) continue;
+    for (uint tile = 0; tile < particleAmt; tile += 512) {
+        if (tile + lid < particleAmt) {
+            sharedPositions[lid] = positions[tile + lid];
+        }
+        
+        barrier();
+        memoryBarrierShared();
 
-        vec4 r = positions[i] - threadPos;
-        float dist = max(length(r), 0.0001f);  
-        float mag = G * (MASS * MASS) / (dist * dist);
-        force += mag * normalize(r);
+        for (uint j = 0; j < 512 && (tile + j) < particleAmt; j++) {
+            if (tid < particleAmt && tid != (tile + j)) {
+                // F_21 = -G * (m1 * m2) / (|r_21|^2) * û_21
+                //      = -G * (m1 * m2) / (|r_21|^3) * r_21
+                vec4 r = sharedPositions[j] - threadPos;
+                float magSq = (r.x * r.x) + (r.y * r.y) + (r.z * r.z); 
+                float mag = sqrt(magSq);
+                force += (MASS * MASS * r) / (max(magSq, MINDIST) * mag);
+            }
+        }
+
+        barrier();
+        memoryBarrierShared();
     }
 
+    // F = m*a -> a = F/m
     vec4 acc = force / MASS;
     velocities[tid] += acc * dt;
 }

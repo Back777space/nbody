@@ -5,6 +5,8 @@
 template<typename T> 
 using P = std::unique_ptr<T>;
 
+#define PI 3.14159265359
+
 float randFloat(float max) {
     return static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/max));
 }

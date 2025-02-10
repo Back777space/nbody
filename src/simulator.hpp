@@ -7,8 +7,8 @@
 #include "camera.hpp"
 #include "shader.hpp"
 
-#define WIDTH 850
-#define HEIGHT 850
+#define WIDTH 950
+#define HEIGHT 950
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -73,11 +73,13 @@ struct Simulator {
 
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // enable gl_PointSize
 
-        camera = std::make_unique<Camera>(glm::vec3{-80.0f, 0.f, 1.5f});
+        camera = std::make_unique<Camera>(glm::vec3{-80.0f, 0.f, 30.0f});
         points = std::make_unique<Points>(20000);
     }
     
     int run() {
+        float frameTimeTotal = 0.0;
+        unsigned long long frames = 0; 
         float oldTime = 0.0f;
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
@@ -86,6 +88,9 @@ struct Simulator {
             float newTime = glfwGetTime();
             this->dt = newTime - oldTime;
             oldTime = newTime;
+
+            frameTimeTotal += this->dt;
+            frames++;
             float fps = 1 / dt;
             std::cout<< "FPS: " << fps << std::endl;
 
@@ -104,6 +109,8 @@ struct Simulator {
     
         glfwDestroyWindow(window);
         glfwTerminate();
+
+        std::cout << "Average frame time: " << frameTimeTotal / (float) frames << std::endl;
 
         return 0;
     }
