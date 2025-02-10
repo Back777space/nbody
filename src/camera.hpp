@@ -12,6 +12,8 @@ class Camera {
         float sensitivity = 0.10f;
         float speed = 50.0f;
 
+        bool firstMouse = true;
+
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f); //  normalized up-direction
 
         glm::vec3 movingDirection = {0.f, 0.f, 0.f};
@@ -53,11 +55,6 @@ class Camera {
             float yaw = -90.0f,
             float pitch = 0.0f
         ) : position{position} {
-
-            lastX = 400.0f; 
-            lastY = 400.0f; 
-            this->setDirection(yaw, pitch);
-
             this->setDirection(yaw, pitch);
         }
 
@@ -66,6 +63,13 @@ class Camera {
         }
 
         void setDirectionByMouse(float xPos, float yPos) {
+            // i hate this
+            if (firstMouse) {
+                lastX = xPos;
+                lastY = yPos;
+                firstMouse = false;
+            }
+
             float xOffset = xPos - lastX;
             float yOffset = lastY - yPos;
             lastX = xPos;

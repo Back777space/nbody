@@ -13,9 +13,11 @@ struct Points {
    std::vector<glm::vec4> velocities;
 
    int particleAmt;
-   GLuint VAO, VBO, positionsBuffer, velocitiesBuffer;
-   Shader shader = Shader("/home/ivan/projects/nbody/src/shaders/point.vert", "/home/ivan/projects/nbody/src/shaders/point.frag");
-   Shader computeShader = Shader("/home/ivan/projects/nbody/src/shaders/nbody.glsl");
+   GLuint VAO, VBO, positionsBuffer, velocitiesBuffer, computeGroups;
+
+   Shader drawShaders = Shader("/home/ivan/projects/nbody/src/shaders/point.vert", "/home/ivan/projects/nbody/src/shaders/point.frag");
+   Shader positionsShader = Shader("/home/ivan/projects/nbody/src/shaders/nbodyPositions.glsl");
+   Shader velocitiesShader = Shader("/home/ivan/projects/nbody/src/shaders/nbodyVelocities.glsl");
 
    float mass = 0.00005;
 
@@ -24,15 +26,14 @@ struct Points {
         velocities = std::vector<glm::vec4>(amt, glm::vec4(0.f));
         particleAmt = amt;
 
-        generateCubePoints(
-            amt,                                     
-            glm::vec3(1.5f, 1.5f, 1.5f),        
-            glm::vec3(7.5f, 7.5f, 7.5f)    
-        );
+        initPositions();
+
+        // generateCubePoints(
+        //     amt,                                     
+        //     glm::vec3(1.5f, 1.5f, 1.5f),        
+        //     glm::vec3(7.5f, 7.5f, 7.5f)    
+        // );
         
-        // CHANGE TO FLOAT ARRAYS SO WE DONT NEED TO USE VEC4 (padding)
-        // we will use an index buffer to locate elements inside of these buffers
-        // instead of a classical vertex buffer
         glGenBuffers(1, &positionsBuffer);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, positionsBuffer);
         glBufferData(GL_SHADER_STORAGE_BUFFER, particleAmt * sizeof(glm::vec4), positions.data(), GL_DYNAMIC_DRAW);
@@ -55,14 +56,40 @@ struct Points {
     	glEnableVertexAttribArray(1);
 
         glBindVertexArray(0); 
+
+        initializeComputeShaders();
+    }
+
+    void initializeComputeShaders() {
+        computeGroups = (particleAmt + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE;
+        
+        // bind buffers
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, velocitiesBuffer);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positionsBuffer);
+        
+        // set constant uniforms
+        velocitiesShader.use();
+        velocitiesShader.setInt("particleAmt", particleAmt);
+        
+        positionsShader.use();
+        positionsShader.setInt("particleAmt", particleAmt);
     }
 
     void initPositions() {
-        for (size_t i = 0; i < particleAmt; i++) {
+        for (int i = 0; i < particleAmt ; i++) {
             positions[i] = glm::vec4(
-                randFloat(3),  
-                randFloat(3),  
-                randFloat(3),
+                randFloat(15.f),  
+                randFloat(15.f),  
+                randFloat(15.f),
+                1.0f
+            );
+        }
+
+        for (int i = particleAmt / 2; i < particleAmt; i++) {
+            positions[i] = glm::vec4(
+                randFloat(50) + 30.f,  
+                randFloat(15),  
+                randFloat(50) + 30.f,
                 1.0f
             );
         }
@@ -96,20 +123,22 @@ struct Points {
     }
 
     void draw() {
-        shader.use();
+        drawShaders.use();
         glBindVertexArray(VAO);
         glDrawArrays(GL_POINTS, 0, particleAmt);
         glBindVertexArray(0);
     }
 
     void update(float dt) {
-        computeShader.use();
-        computeShader.setInt("particleAmt", particleAmt);
-        computeShader.setFloat("dt", dt);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsBuffer);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, velocitiesBuffer);
+        // we need to seperate shaders to avoid race conditions
+        velocitiesShader.use();
+        velocitiesShader.setFloat("dt", dt);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        // fast ceil of x / y => (x + y - 1) / y
-        glDispatchCompute((particleAmt + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE, 1, 1);
+        glDispatchCompute(computeGroups, 1, 1);
+        
+        positionsShader.use();
+        positionsShader.setFloat("dt", dt);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        glDispatchCompute(computeGroups, 1, 1);
     }
 };

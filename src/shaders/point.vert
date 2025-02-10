@@ -13,13 +13,24 @@ out vec3 VertexCol;
 
 void main()
 {
-    float len = length(aVel.xyz); 
-    vec3 unitVec = normalize(aVel.xyz); 
-    vec3 color = 0.5 + 0.5 * unitVec;  
-    float minBrightness = 0.55; 
-    // interpolate
-    VertexCol = mix(vec3(minBrightness), color, len); 
+    float minLen = 0.01;   // Expected minimum length
+    float maxLen = 825.0;  // Expected maximum length (adjust based on actual values)
+
+    // Compute vector length
+    float len = length(aVel.xyz);
+
+    // Normalize len to the [0,1] range
+    float normalizedLen = clamp((len - minLen) / (maxLen - minLen), 0.0, 1.0);
+
+    // Debug: Output normalized length to ensure it's between 0 and 1
+    // You can use this if you have an easy way to visualize it in the shader (like setting it to a grayscale value)
+    VertexCol = vec3(normalizedLen); 
+
+    // Interpolate color based on length
+    float col = mix(225, 825.0, normalizedLen);
+    float c = col / 825.0;
+    VertexCol = vec3(c, c, 1.0);  // Normalize to [0,1] so it's not always white
 
     gl_Position = projection * view * vec4(aPos.xyz, 1.0);
-    gl_PointSize = 2; 
+    gl_PointSize = 1.8; 
 }

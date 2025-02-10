@@ -7,15 +7,21 @@
 #include "camera.hpp"
 #include "shader.hpp"
 
-#define WIDTH 1000
-#define HEIGHT 1000
+#define WIDTH 850
+#define HEIGHT 850
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 } 
 
+// we need a global declaration to use it in the callback
+P<Camera> camera;
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    camera->setDirectionByMouse(xpos, ypos);
+}
+
 struct Simulator {
-    P<Camera> camera;
     P<Points> points;
 
     float dt;
@@ -38,9 +44,9 @@ struct Simulator {
     
         glfwMakeContextCurrent(window);
         gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
-    
+        
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetCursorPosCallback(window, mouse_callback);
 
         // enable compute shaders
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -50,12 +56,11 @@ struct Simulator {
         glGenBuffers(1, &uboMatrices);
 
         glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-        glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec3), NULL, GL_STATIC_DRAW);
+        glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
 
-        glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4) + sizeof(glm::vec3));
-
-        glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.01f, 1000.0f);
+        glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 10000.0f);
 
         glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(proj));
@@ -68,9 +73,7 @@ struct Simulator {
 
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // enable gl_PointSize
 
-        glfwSetCursorPos(window, WIDTH/2, HEIGHT/2);
-
-        camera = std::make_unique<Camera>(glm::vec3{-80.0f, 0.f, 1.5f}, 0.0f, 0.0f);
+        camera = std::make_unique<Camera>(glm::vec3{-80.0f, 0.f, 1.5f});
         points = std::make_unique<Points>(20000);
     }
     
@@ -83,8 +86,8 @@ struct Simulator {
             float newTime = glfwGetTime();
             this->dt = newTime - oldTime;
             oldTime = newTime;
-            // float fps = 1 / dt;
-            // std::cout<< "FPS: " << fps << std::endl;
+            float fps = 1 / dt;
+            std::cout<< "FPS: " << fps << std::endl;
 
             processInput();
             processEvents();
@@ -109,16 +112,8 @@ struct Simulator {
         camera->update(this->dt);
         points->update(this->dt);
     }
-
-    void handleMouse() {
-        GLdouble xPos, yPos;
-        glfwGetCursorPos(window, &xPos, &yPos);
-        camera->setDirectionByMouse((float)xPos, (float)yPos);
-    }
     
-    void processInput() {
-        handleMouse();
-    
+    void processInput() {    
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
             camera->handleKeyInput(Camera::InputEvent::FORWARDS);
         }

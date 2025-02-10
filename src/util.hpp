@@ -14,6 +14,11 @@ std::ostream& operator<<(std::ostream& s, glm::vec3 vec) {
     return s;
 }
 
+std::ostream& operator<<(std::ostream& s, glm::vec2 vec) {
+    s << "(" << vec.x << ", " << vec.y << ")";
+    return s;
+}
+
 template<class T>
 std::ostream& operator<<(std::ostream& out, const std::vector<T>& obj) {
     out << "[";

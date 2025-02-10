@@ -2,19 +2,19 @@
 
 layout (local_size_x = 512) in;
 
-layout (binding = 0, std430) buffer positionsBuffer {
-    vec4 positions[];
+layout (binding = 0, std430) buffer velocitiesBuffer {
+    vec4 velocities[];
 };
 
-layout (binding = 1, std430) buffer velocitiesBuffer {
-    vec4 velocities[];
+layout (binding = 1, std430) buffer positionsBuffer {
+    vec4 positions[];
 };
 
 uniform int particleAmt;
 uniform float dt;
 
 const float MASS = 10;
-const float G = 0.00010;
+const float G = 0.0015;
 
 void main() {
     uint tid = gl_GlobalInvocationID.x;
@@ -34,5 +34,4 @@ void main() {
 
     vec4 acc = force / MASS;
     velocities[tid] += acc * dt;
-    positions[tid] += velocities[tid] * dt;
 }
