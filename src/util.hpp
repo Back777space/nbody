@@ -6,17 +6,18 @@ template<typename T>
 using P = std::unique_ptr<T>;
 
 #define PI 3.14159265359
+#define TAU 2*PI
 
 float randFloat(float max) {
     return static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/max));
 }
 
-std::ostream& operator<<(std::ostream& s, glm::vec3 vec) {
+std::ostream& operator<<(std::ostream& s, const glm::vec3& vec) {
     s << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
     return s;
 }
 
-std::ostream& operator<<(std::ostream& s, glm::vec2 vec) {
+std::ostream& operator<<(std::ostream& s, const glm::vec2& vec) {
     s << "(" << vec.x << ", " << vec.y << ")";
     return s;
 }

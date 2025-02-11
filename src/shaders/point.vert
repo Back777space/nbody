@@ -29,5 +29,5 @@ void main()
 
 
     gl_Position = projection * view * vec4(aPos.xyz, 1.0);
-    gl_PointSize = 1.25; 
+    gl_PointSize = 10; 
 }

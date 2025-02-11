@@ -2,7 +2,7 @@
 #include "include/glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include "objects/points.hpp"
+#include "objects/nbody.hpp"
 #include "include/glm/ext.hpp"
 #include "camera.hpp"
 #include "shader.hpp"
@@ -22,7 +22,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 struct Simulator {
-    P<Points> points;
+    P<NBody> nbody;
 
     float dt;
 
@@ -73,8 +73,8 @@ struct Simulator {
 
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // enable gl_PointSize
 
-        camera = std::make_unique<Camera>(glm::vec3{-80.0f, 0.f, 30.0f});
-        points = std::make_unique<Points>(20000);
+        camera = std::make_unique<Camera>(glm::vec3{5.0f, 0.f, 30.0f});
+        nbody = std::make_unique<NBody>(2);
     }
     
     int run() {
@@ -91,8 +91,8 @@ struct Simulator {
 
             frameTimeTotal += this->dt;
             frames++;
-            float fps = 1 / dt;
-            std::cout<< "FPS: " << fps << std::endl;
+            // float fps = 1 / dt;
+            // std::cout<< "FPS: " << fps << std::endl;
 
             processInput();
             processEvents();
@@ -101,7 +101,7 @@ struct Simulator {
             glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
             glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
     
-            points->draw();
+            nbody->draw();
             
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -116,8 +116,8 @@ struct Simulator {
     }
 
     void processEvents() {
-        camera->update(this->dt);
-        points->update(this->dt);
+        camera->update(dt);
+        nbody->update(dt);
     }
     
     void processInput() {    
