@@ -32,11 +32,13 @@ struct NBody {
         //     glm::vec3(7.5f, 7.5f, 7.5f)    
         // );
 
+        bodyInitializer.kindaCube(positions);
+
         // bodyInitializer.initializeGalaxy(positions, velocities);
         
         // bodyInitializer.initializeBalanced(positions, velocities);
 
-        bodyInitializer.sunEarth(positions, velocities);
+        // bodyInitializer.sunEarth(positions, velocities);
 
         initBuffers();
         initComputeShaders();
@@ -101,7 +103,7 @@ struct NBody {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         glDispatchCompute(computeGroups, 1, 1);
 
-        calculateSystemAngMom();
+        // calculateSystemAngMom();
     }
 
     float lastEn = 0.0f;

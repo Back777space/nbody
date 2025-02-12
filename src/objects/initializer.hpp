@@ -13,23 +13,25 @@ struct Initializer {
         bodyAmount = amt;
     }
 
-    void kindaCube(std::vector<glm::vec4>& positions) {
+    void cubes(std::vector<glm::vec4>& positions) {
+        auto zOffset = glm::vec4(100.0f, 0.f, 0.f, 0.f);
+        auto xOffset = glm::vec4(0.0f, 0.f, 40.f, 0.f);
         for (size_t i = 0; i < bodyAmount ; i++) {
             positions[i] = glm::vec4(
                 randFloat(15.f),  
                 randFloat(15.f),  
                 randFloat(15.f),
                 defaultMass
-            );
+            ) + zOffset;
         }
 
         for (size_t i = bodyAmount / 2; i < bodyAmount; i++) {
             positions[i] = glm::vec4(
-                shiftLowerBound(randFloat(30.f), 0.f, 15.f),  
-                randFloat(15.f),  
-                shiftLowerBound(randFloat(30.f), 0.f, 15.f),
+                randFloat(15.f),
+                randFloat(15.f),
+                randFloat(15.f),
                 defaultMass
-            );
+            ) + zOffset + xOffset;
         }
     }
 

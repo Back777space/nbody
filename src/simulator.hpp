@@ -74,7 +74,7 @@ struct Simulator {
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // enable gl_PointSize
 
         camera = std::make_unique<Camera>(glm::vec3{5.0f, 0.f, 30.0f});
-        nbody = std::make_unique<NBody>(2);
+        nbody = std::make_unique<NBody>(10000);
     }
     
     int run() {
