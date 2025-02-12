@@ -5,6 +5,7 @@
 #include <numeric>
 #include "../shader.hpp"
 #include "initializer.hpp"
+#include "../resourcemanager.hpp"
 
 #define WORKGROUP_SIZE 512
 
@@ -15,16 +16,20 @@ struct NBody {
     int particleAmt;
     GLuint VAO, VBO, positionsBuffer, velocitiesBuffer, computeGroups;
 
-    Shader drawShaders = Shader("/home/ivan/projects/nbody/src/shaders/point.vert", "/home/ivan/projects/nbody/src/shaders/point.frag");
-    Shader positionsShader = Shader("/home/ivan/projects/nbody/src/shaders/nbodyPositions.glsl");
-    Shader velocitiesShader = Shader("/home/ivan/projects/nbody/src/shaders/nbodyVelocities.glsl");
+    Shader drawShader, positionsShader, velocitiesShader;
 
     Initializer bodyInitializer;
 
     NBody(int amt): bodyInitializer(Initializer(amt)) {
+        std::cout << amt << std::endl;
+        particleAmt = amt;
         positions.reserve(amt);
         velocities = std::vector<glm::vec4>(amt, glm::vec4(0.f));
-        particleAmt = amt;
+
+        drawShader = ResourceManager::getShader("pointShader");
+        velocitiesShader = ResourceManager::getShader("nbodyVelocityCompute");
+        positionsShader = ResourceManager::getShader("nbodyPositionCompute");
+        
 
         // bodyInitializer.cube(
         //     positions,                                     
@@ -32,13 +37,13 @@ struct NBody {
         //     glm::vec3(7.5f, 7.5f, 7.5f)    
         // );
 
-        bodyInitializer.kindaCube(positions);
+        // bodyInitializer.cubes(positions);
 
-        // bodyInitializer.initializeGalaxy(positions, velocities);
+        // bodyInitializer.galaxy(positions, velocities);
         
-        // bodyInitializer.initializeBalanced(positions, velocities);
+        // bodyInitializer.balanced(positions, velocities);
 
-        // bodyInitializer.sunEarth(positions, velocities);
+        bodyInitializer.sunEarth(positions, velocities);
 
         initBuffers();
         initComputeShaders();
@@ -85,7 +90,7 @@ struct NBody {
     }
 
     void draw() {
-        drawShaders.use();
+        drawShader.use();
         glBindVertexArray(VAO);
         glDrawArrays(GL_POINTS, 0, particleAmt);
         glBindVertexArray(0);

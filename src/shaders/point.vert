@@ -27,7 +27,6 @@ void main()
         col <= 3.0 ? col - 2.0 : 1.0
     );
 
-
     gl_Position = projection * view * vec4(aPos.xyz, 1.0);
-    gl_PointSize = 1.2; 
+    gl_PointSize = 20; 
 }

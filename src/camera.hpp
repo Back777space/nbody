@@ -3,8 +3,6 @@
 #include "include/glm/glm.hpp"
 #include "include/glm/gtc/matrix_transform.hpp"
 #include "include/glm/gtc/type_ptr.hpp"
-
-#define GLM_ENABLE_EXPERIMENTAL
 #include "include/glm/gtx/string_cast.hpp"
 
 class Camera {

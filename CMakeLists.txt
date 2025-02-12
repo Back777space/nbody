@@ -11,7 +11,7 @@ set(SOURCES
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# Find and link OpenGL & GLFW
+# find and link OpenGL & GLFW
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 

@@ -1,6 +1,8 @@
 #pragma once
 #include <stdlib.h>
 #include <memory>
+#define GLM_ENABLE_EXPERIMENTAL
+#include "include/glm/gtx/string_cast.hpp"
 
 template<typename T> 
 using P = std::unique_ptr<T>;
@@ -12,15 +14,11 @@ float randFloat(float max) {
     return static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/max));
 }
 
-std::ostream& operator<<(std::ostream& s, const glm::vec3& vec) {
-    s << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
-    return s;
+template <int D, typename T, glm::qualifier P>
+std::ostream &operator<<(std::ostream &os, glm::vec<D, T, P> v) {
+  return os << glm::to_string(v);
 }
 
-std::ostream& operator<<(std::ostream& s, const glm::vec2& vec) {
-    s << "(" << vec.x << ", " << vec.y << ")";
-    return s;
-}
 
 template<class T>
 std::ostream& operator<<(std::ostream& out, const std::vector<T>& obj) {

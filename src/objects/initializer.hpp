@@ -35,24 +35,30 @@ struct Initializer {
         }
     }
 
-    void initializeGalaxy(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities) {
+    void galaxy(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities, int size = 65) {
+        float maxSqrt = std::sqrt(bodyAmount);
         for (size_t i = 0; i < bodyAmount; i++) {
             float distrFact = std::sqrt(i);
             float phi = randFloat(TAU);
-            float theta = randFloat(TAU);
             float r = randFloat(1);
-            float mass = randFloat(0.05) + 0.01; // [0.01, 0.06]
-            glm::vec4 pos = glm::vec4(
-                100.f,
-                std::sin(phi) * r * distrFact,
-                std::cos(phi) * r * distrFact,
-                mass
-            );
+            float mass = randFloat(0.15) + 0.01; // [0.01, 0.08]
+
+            float y = linInterp(std::sin(phi) * r * distrFact, -maxSqrt, maxSqrt, -size, size);
+            float x = linInterp(std::cos(phi) * r * distrFact, -maxSqrt, maxSqrt, -size, size);
+            glm::vec4 pos = glm::vec4(100.f, y, x, mass);
             positions[i] = pos;
+
+            // tangent to circle
+            velocities[i] = glm::vec4(
+                0.f, 
+                linInterp(-x, -size, size, -3, 3), 
+                linInterp(y, -size, size, -3, 3), 
+                0.f
+            );
         }
     }
 
-    void initializeBalanced(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities) {
+    void balanced(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities) {
         float step = 25;
         for (size_t i = 0; i < bodyAmount; i++) {
             glm::vec4 pos = glm::vec4(
@@ -111,7 +117,7 @@ struct Initializer {
         }
     }
 
-    float shiftLowerBound(float x, float a, float c) {
-        return x + (c - a);
+    float linInterp(float x, float a, float b, float c, float d) {
+        return c + ((x - a) / (b - a)) * (d - c);
     }
 };

@@ -5,6 +5,7 @@
 #include "objects/nbody.hpp"
 #include "include/glm/ext.hpp"
 #include "camera.hpp"
+#include "resourcemanager.hpp"
 #include "shader.hpp"
 
 #define WIDTH 950
@@ -51,6 +52,7 @@ struct Simulator {
         // enable compute shaders
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
         // init shader matrices buffer
         glGenBuffers(1, &uboMatrices);
@@ -73,8 +75,9 @@ struct Simulator {
 
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // enable gl_PointSize
 
+        ResourceManager::initShaders();
         camera = std::make_unique<Camera>(glm::vec3{5.0f, 0.f, 30.0f});
-        nbody = std::make_unique<NBody>(10000);
+        nbody = std::make_unique<NBody>(2);
     }
     
     int run() {
