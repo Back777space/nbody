@@ -22,7 +22,7 @@ layout (binding = 3, std430) buffer oldaccBuffer {
 uniform int bodyAmt;
 uniform float dt;
 
-const float MINDIST = 0.02;
+const float MINDIST = 0.03;
 
 shared vec4 sharedPositions[gl_WorkGroupSize.x];  
 

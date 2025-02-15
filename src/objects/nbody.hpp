@@ -13,8 +13,7 @@ struct NBody {
     std::vector<glm::vec4> velocities;
 
     int bodyAmt;
-    GLuint VAO, VBO, positionsBuffer, velocitiesBuffer, computeGroups;
-    GLuint accBuffer, oldaccBuffer;
+    GLuint VAO, VBO, positionsBuffer, velocitiesBuffer, computeGroups, accBuffer, oldaccBuffer;
 
     Shader drawShader, positionsShader, velocitiesShader;
 
