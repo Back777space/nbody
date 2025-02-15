@@ -6,3 +6,4 @@
 - let user place masses in the space
 - view total system energy on screen
 - implement particle (lines) system for trajectory
+- simulation frequency and frame rate in gui

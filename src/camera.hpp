@@ -8,7 +8,7 @@
 class Camera {
     private:
         float sensitivity = 0.10f;
-        float speed = 50.0f;
+        float speed = 140.0f;
 
         bool firstMouse = true;
 
