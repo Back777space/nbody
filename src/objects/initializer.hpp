@@ -12,6 +12,8 @@ struct Initializer {
     float minDist = 0.01;
     float velScale = 1.2;
 
+    std::mt19937 engine{ std::random_device{}() };
+
     Initializer(size_t amt) {
         bodyAmount = amt;
     }
@@ -19,34 +21,41 @@ struct Initializer {
     void cubes(std::vector<glm::vec4>& positions) {
         auto zOffset = glm::vec4(100.0f, 0.f, 0.f, 0.f);
         auto xOffset = glm::vec4(0.0f, 0.f, 40.f, 0.f);
+        std::uniform_real_distribution<float> posDistr(0.f, 15.f);
+        std::uniform_real_distribution<float> massDistr(0.01, 0.1);
+
+
         for (size_t i = 0; i < bodyAmount / 2; i++) {
             positions[i] = glm::vec4(
-                randFloat(0.f, 15.f),  
-                randFloat(0.f, 15.f),  
-                randFloat(0.f, 15.f),
-                defaultMass
+                posDistr(engine),  
+                posDistr(engine),  
+                posDistr(engine),
+                massDistr(engine)
             ) + zOffset;
         }
 
         for (size_t i = bodyAmount / 2; i < bodyAmount; i++) {
             positions[i] = glm::vec4(
-                randFloat(0.f, 15.f),
-                randFloat(0.f, 15.f),
-                randFloat(0.f, 15.f),
-                defaultMass
+                posDistr(engine),
+                posDistr(engine),
+                posDistr(engine),
+                massDistr(engine)
             ) + zOffset + xOffset;
         }
     }
 
     void galaxy(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities, int size = 65) {
+        std::uniform_real_distribution<float> tauDistr(0.f, TAU);
+        std::uniform_real_distribution<float> massDistr(0.04, 0.12);
+
         float maxSqrt = std::sqrt(bodyAmount);
         for (size_t i = 0; i < bodyAmount; i++) {
             float distrFact = std::sqrt(i);
-            float phi = randFloat(0.f, TAU);
-            float mass = randFloat(0.01, 0.12); // [0.01, 0.12]
+            float phi = tauDistr(engine);
+            float mass = massDistr(engine);
 
-            float y = lerp(std::sin(phi) * distrFact, -maxSqrt, maxSqrt, -size, size);
-            float x = lerp(std::cos(phi) * distrFact, -maxSqrt, maxSqrt, -size, size);
+            float y = lerp(glm::sin(phi) * distrFact, -maxSqrt, maxSqrt, -size, size);
+            float x = lerp(glm::cos(phi) * distrFact, -maxSqrt, maxSqrt, -size, size);
             glm::vec4 pos = glm::vec4(100.f, y, x, mass);
             positions[i] = std::move(pos);
 
@@ -60,13 +69,35 @@ struct Initializer {
         }
     }
 
+    void sphere(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities, int size = 20) {
+        glm::vec4 zOffset = glm::vec4(75.f, 0.f, 0.f, 0.f);
+        std::uniform_real_distribution<float> tauDistr(0.f, TAU);
+        std::uniform_real_distribution<float> uDistr(-1.f, 1.f);
+        std::uniform_real_distribution<float> massDistr(0.01, 0.15);
+
+        for (size_t i = 0; i < bodyAmount; i++) {
+            float phi = tauDistr(engine);
+            float u = uDistr(engine);
+            float theta = glm::acos(u);
+            float mass = massDistr(engine);
+
+            float x = glm::sin(theta) * glm::cos(phi) * size;
+            float y = glm::sin(theta) * glm::sin(phi) * size;
+            float z = glm::cos(theta) * size;
+
+            positions[i] = glm::vec4(z, y, x, mass) + zOffset;
+        }
+    }
+
     void balanced(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities) {
         float step = 25;
+        std::uniform_real_distribution<float> distr(-0.5, 0.5);
+
         for (size_t i = 0; i < bodyAmount; i++) {
             glm::vec4 pos = glm::vec4(
                 100.f,
                 step * i,
-                randFloat(-0.5, 0.5),
+                distr(engine),
                 (1.0f * i) + 0.1f
             ) ;
             positions[i] = pos;
@@ -97,6 +128,7 @@ struct Initializer {
         const glm::vec3& center = glm::vec3(0.0f),
         const glm::vec3& size = glm::vec3(1.0f)
     ) {
+        std::uniform_real_distribution<float> massDistr(0.01, 0.1);
         int pointsPerEdge = static_cast<int>(std::ceil(std::cbrt(bodyAmount)));
         
         float step = 1.0f / (pointsPerEdge - 1);  // interval between points
@@ -110,16 +142,12 @@ struct Initializer {
                         minCorner.x + size.x * (x * step),
                         minCorner.y + size.y * (y * step),
                         minCorner.z + size.z * (z * step),
-                        randFloat(0.01, 0.1)
+                        massDistr(engine)
                     );
                     positions.push_back(position);
                     remainingPoints--;
                 }
             }
         }
-    }
-
-    float lerp(float x, float a, float b, float c, float d) {
-        return c + ((x - a) / (b - a)) * (d - c);
     }
 };

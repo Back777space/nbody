@@ -55,7 +55,7 @@ struct Simulator {
     
         // uniforms
         glCreateBuffers(1, &uboMatrices);
-        glNamedBufferStorage(uboMatrices, 2 * sizeof(glm::mat4), nullptr, GL_DYNAMIC_STORAGE_BIT);
+        glNamedBufferStorage(uboMatrices, 2 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_STORAGE_BIT);
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboMatrices);
 
         glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 10000.0f);
@@ -69,8 +69,8 @@ struct Simulator {
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // enable gl_PointSize
 
         ResourceManager::initShaders();
-        camera = std::make_unique<Camera>(glm::vec3{5.0f, 0.f, 30.0f});
-        nbody = std::make_unique<NBody>(5000);
+        camera = std::make_unique<Camera>(glm::vec3{0.0f, 0.f, 0.0f});
+        nbody = std::make_unique<NBody>(8000);
     }
     
     int run() {
@@ -82,7 +82,9 @@ struct Simulator {
             // pre rendering
             processInput();
             glm::mat4 view = camera->getView();
+            glm::vec4 camPos = glm::vec4(camera->getPosition(), 1.0);
             glNamedBufferSubData(uboMatrices, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+            glNamedBufferSubData(uboMatrices, sizeof(glm::mat4) * 2, sizeof(glm::vec4), glm::value_ptr(camPos));
 
             // rendering
             double renderStartTime = glfwGetTime();
@@ -91,7 +93,7 @@ struct Simulator {
             glClear(GL_COLOR_BUFFER_BIT);     
             
             for (int i = 0; i < NUM_SUBSTEPS; i++) {
-                nbody->update(SIM_DT);
+                nbody->update();
             }
             
             camera->update(RENDER_DT);

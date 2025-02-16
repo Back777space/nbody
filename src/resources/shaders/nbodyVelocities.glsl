@@ -1,6 +1,6 @@
 #version 430 core
 
-layout (local_size_x = 512, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
 layout (binding = 0, std430) buffer velocitiesBuffer {
     vec4 velocities[];
@@ -15,63 +15,60 @@ layout (binding = 2, std430) buffer accBuffer {
     vec4 accelerations[];
 };
 
-layout (binding = 3, std430) buffer oldaccBuffer {
-    vec4 oldAccelerations[];
-};
-
 uniform int bodyAmt;
 uniform float dt;
 
-const float MINDIST = 0.03;
+const float EPSILON_SQRD = 0.0002;
 
-shared vec4 sharedPositions[gl_WorkGroupSize.x];  
+shared vec4 sharedPositions[gl_WorkGroupSize.x];
 
 
-vec3 computeAcc(vec3 pos, float mass, uint tid, uint lid) {
-    vec3 force = vec3(0.0);
-
+vec3 computeAcc(vec3 pos, float mass, uint tid) {
+    uint lid = gl_LocalInvocationID.x;
+    vec3 acc = vec3(0.0);
+    
     for (uint tile = 0; tile < bodyAmt; tile += gl_WorkGroupSize.x) {
         if (tile + lid < bodyAmt) {
             sharedPositions[lid] = positions[tile + lid];
         }
-        
-        barrier();
-        memoryBarrierShared();
-
-        for (uint j = 0; j < gl_WorkGroupSize.x && (tile + j) < bodyAmt; j++) {
-            // we dont want to count the same particle twice
-            // and we dont read values that arent initialized in this tile
-            if (tid != (tile + j) && (tile + j) < bodyAmt) {  
-                // F_21 = -G * (m1 * m2) / (|r_21|^2) * û_21
-                //      = -G * (m1 * m2) / (|r_21|^3) * r_21
-                vec4 compData = sharedPositions[j];
-                vec3 r = compData.xyz - pos;
-                float magSq = dot(r,r); 
-                float mag = sqrt(magSq);
-                force += (mass * compData.w * r) / (max(magSq, MINDIST * MINDIST) * mag);
-            }
+        else {
+            sharedPositions[lid] = vec4(0.f);
         }
-
         barrier();
-        memoryBarrierShared();
+        uint validCount = min(gl_WorkGroupSize.x, bodyAmt - tile);
+
+        for (uint j = 0; j < validCount; j++) {
+            // F_21 = -G * (m1 * m2) / (||r_21||^2) * û_21
+            //      = -G * (m1 * m2) / (||r_21||^3) * r_21
+            // => we can use plummer model with built in softening
+            // which will save us flops as well as an if test to check if 
+            // we are calculating the force on itself (will be zero)
+            // a_1 = (m2 * r_21) / (||r_21||² + eps²)^(3/2)
+            vec4 compData = sharedPositions[j];
+            vec3 r = compData.xyz - pos;
+            float distSqrd = dot(r,r) + EPSILON_SQRD; 
+            float distSixth = distSqrd * distSqrd * distSqrd; 
+            acc += (compData.w * r) / sqrt(distSixth);
+        }
+        barrier();
     }
 
     // F = m*a -> a = F/m
-    return force / mass;
+    // but we can just cancel m in the force calculation 
+    return acc;
 }
 
 void main() {
     uint tid = gl_GlobalInvocationID.x;
-    uint lid = gl_LocalInvocationID.x;
     if (tid >= bodyAmt) return;
 
     vec4 posData = positions[tid];
-    vec3 oldAcc = oldAccelerations[tid].xyz;
 
-    vec3 newAcc = computeAcc(posData.xyz, posData.w, tid, lid);
-    
-    velocities[tid].xyz += 0.5*(oldAcc + newAcc)*dt;
-    
-    accelerations[tid].xyz = newAcc;
+    vec3 acc = computeAcc(posData.xyz, posData.w, tid);
+    vec4 newAcc = vec4(acc, 0.f);
+
+    // full time step velocity update
+    velocities[tid] += newAcc * dt * 0.5;
+    accelerations[tid] = newAcc;
 }
 
