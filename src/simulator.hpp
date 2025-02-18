@@ -79,7 +79,7 @@ struct Simulator {
 
         glGenTextures(1, &sceneTexture);
         glBindTexture(GL_TEXTURE_2D, sceneTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sceneTexture, 0);
@@ -88,7 +88,7 @@ struct Simulator {
         ResourceManager::initShaders();
         bloom = Bloom(sceneTexture);
         camera = std::make_unique<Camera>(glm::vec3{0.0f, 0.f, 0.0f});
-        nbody = std::make_unique<NBody>(5000);
+        nbody = std::make_unique<NBody>(2);
     }
     
     int run() {
