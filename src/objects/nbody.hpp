@@ -34,8 +34,8 @@ struct NBody {
         //     glm::vec3(40.f, 40.f, 40.f)    
         // );
         // bodyInitializer.cubes(positions);
-        // bodyInitializer.galaxy(positions, velocities, 20);
-        bodyInitializer.sphere(positions, velocities);
+        bodyInitializer.galaxy(positions, velocities);
+        // bodyInitializer.sphere(positions, velocities);
         // bodyInitializer.balanced(positions, velocities);
         // bodyInitializer.sunEarth(positions, velocities);
             

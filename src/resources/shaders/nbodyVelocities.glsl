@@ -31,9 +31,6 @@ vec3 computeAcc(vec3 pos, float mass, uint tid) {
         if (tile + lid < bodyAmt) {
             sharedPositions[lid] = positions[tile + lid];
         }
-        else {
-            sharedPositions[lid] = vec4(0.f);
-        }
         barrier();
         uint validCount = min(gl_WorkGroupSize.x, bodyAmt - tile);
 
@@ -64,11 +61,10 @@ void main() {
 
     vec4 posData = positions[tid];
 
-    vec3 acc = computeAcc(posData.xyz, posData.w, tid);
-    vec4 newAcc = vec4(acc, 0.f);
+    vec3 newAcc = computeAcc(posData.xyz, posData.w, tid);
 
     // full time step velocity update
-    velocities[tid] += newAcc * dt * 0.5;
-    accelerations[tid] = newAcc;
+    velocities[tid].xyz += newAcc * dt * 0.5;
+    accelerations[tid].xyz = newAcc;
 }
 

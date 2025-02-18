@@ -22,9 +22,9 @@ void main() {
     if (tid >= bodyAmt) return;
 
     // https://en.wikipedia.org/wiki/Leapfrog_integration 
-    vec4 newVel = velocities[tid] + accelerations[tid] * dt * 0.5;
+    vec3 newVel = velocities[tid].xyz + accelerations[tid].xyz * dt * 0.5;
     
     // update velocity at half step
-    velocities[tid] = newVel;
-    positions[tid] += newVel * dt;
+    velocities[tid].xyz = newVel;
+    positions[tid].xyz += newVel * dt;
 }

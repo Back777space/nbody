@@ -10,6 +10,6 @@ void main() {
     if (dot(distToCenter,distToCenter) > radiusSq) {
         discard;
     }
-
+    
     FragColor = vec4(VertexCol, 1.0);
 }

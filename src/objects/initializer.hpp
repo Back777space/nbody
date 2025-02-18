@@ -44,18 +44,18 @@ struct Initializer {
         }
     }
 
-    void galaxy(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities, int size = 65) {
+    void galaxy(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities, int size = 40) {
         std::uniform_real_distribution<float> tauDistr(0.f, TAU);
-        std::uniform_real_distribution<float> massDistr(0.04, 0.12);
+        std::uniform_real_distribution<float> massDistr(0.04, 0.15);
 
         float maxSqrt = std::sqrt(bodyAmount);
         for (size_t i = 0; i < bodyAmount; i++) {
             float distrFact = std::sqrt(i);
-            float phi = tauDistr(engine);
+            float alpha = tauDistr(engine);
             float mass = massDistr(engine);
 
-            float y = lerp(glm::sin(phi) * distrFact, -maxSqrt, maxSqrt, -size, size);
-            float x = lerp(glm::cos(phi) * distrFact, -maxSqrt, maxSqrt, -size, size);
+            float y = lerp(glm::sin(alpha) * distrFact, -maxSqrt, maxSqrt, -size, size);
+            float x = lerp(glm::cos(alpha) * distrFact, -maxSqrt, maxSqrt, -size, size);
             glm::vec4 pos = glm::vec4(100.f, y, x, mass);
             positions[i] = std::move(pos);
 
@@ -69,11 +69,11 @@ struct Initializer {
         }
     }
 
-    void sphere(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities, int size = 20) {
+    void sphere(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities, int size = 15) {
         glm::vec4 zOffset = glm::vec4(75.f, 0.f, 0.f, 0.f);
         std::uniform_real_distribution<float> tauDistr(0.f, TAU);
         std::uniform_real_distribution<float> uDistr(-1.f, 1.f);
-        std::uniform_real_distribution<float> massDistr(0.01, 0.15);
+        std::uniform_real_distribution<float> massDistr(0.01, 0.11);
 
         for (size_t i = 0; i < bodyAmount; i++) {
             float phi = tauDistr(engine);

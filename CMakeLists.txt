@@ -29,4 +29,4 @@ target_link_libraries(nbody
 
 # set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O1")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")

@@ -21,7 +21,7 @@ layout (std140) uniform Matrices {
 out vec3 VertexCol;
 
 const float minPointSize = 1.35f; 
-const float pointScale = 80.0f;
+const float pointScale = 95.0f;
 
 float maxVel = 16; 
 

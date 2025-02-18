@@ -29,9 +29,10 @@ namespace ResourceManager {
 
     void initShaders() {
         addShader("pointShader", "points/point.vert", "points/point.frag");
-        addShader("circleShader", "circles/circle.vert", "circles/circle.frag");
         addShader("nbodyPositionCompute", "nbodyPositions.glsl");
         addShader("nbodyVelocityCompute", "nbodyVelocities.glsl");
+        addShader("gaussianBlur", "post-processing/gaussBlur.glsl");
+        addShader("bloomBlend", "post-processing/blendBloom.vert", "post-processing/blendBloom.frag");
     }
 
     Shader& getShader(const std::string& shaderName) {

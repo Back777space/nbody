@@ -9,6 +9,7 @@
 #include "camera.hpp"
 #include "resources/resourcemanager.hpp"
 #include "resources/shader.hpp"
+#include "post-processing/bloom.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -28,6 +29,11 @@ struct Simulator {
 
     GLFWwindow* window;
     GLuint uboMatrices;
+
+    // main rendering buffer and tex
+    GLuint hdrFBO, sceneTexture;
+
+    Bloom bloom;
 
     Simulator() {
         if (!glfwInit()) {
@@ -68,9 +74,21 @@ struct Simulator {
 
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // enable gl_PointSize
 
+        glGenFramebuffers(1, &hdrFBO);
+        glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+
+        glGenTextures(1, &sceneTexture);
+        glBindTexture(GL_TEXTURE_2D, sceneTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sceneTexture, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
         ResourceManager::initShaders();
+        bloom = Bloom(sceneTexture);
         camera = std::make_unique<Camera>(glm::vec3{0.0f, 0.f, 0.0f});
-        nbody = std::make_unique<NBody>(8000);
+        nbody = std::make_unique<NBody>(5000);
     }
     
     int run() {
@@ -88,6 +106,9 @@ struct Simulator {
 
             // rendering
             double renderStartTime = glfwGetTime();
+            
+            // first draw to this buffer
+            glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
             glClear(GL_COLOR_BUFFER_BIT);     
@@ -98,11 +119,17 @@ struct Simulator {
             
             camera->update(RENDER_DT);
             nbody->draw();
+
+            // the scene is now rendered to sceneTexture
+            // now we use this to generate a bloom texture
+            bloom.blur();
+            bloom.drawBlendedScene();
             
+
+            // post rendering
             glfwSwapBuffers(window);
             glfwPollEvents();
             
-            // post rendering
             float frameEndTime = glfwGetTime();
             float frameTime = frameEndTime - frameStartTime;
             // wait so we dont exceed target fps (busy wait)
