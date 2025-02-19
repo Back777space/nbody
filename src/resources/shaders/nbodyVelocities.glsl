@@ -18,7 +18,7 @@ layout (binding = 2, std430) buffer accBuffer {
 uniform int bodyAmt;
 uniform float dt;
 
-const float EPSILON_SQRD = 0.0002;
+const float EPSILON_SQRD = 0.0005;
 
 shared vec4 sharedPositions[gl_WorkGroupSize.x];
 
@@ -38,14 +38,15 @@ vec3 computeAcc(vec3 pos, float mass, uint tid) {
             // F_21 = -G * (m1 * m2) / (||r_21||^2) * û_21
             //      = -G * (m1 * m2) / (||r_21||^3) * r_21
             // => we can use plummer model with built in softening
-            // which will save us flops as well as an if test to check if 
-            // we are calculating the force on itself (will be zero)
+            // which will avoid calculating the force on itself 
+            // as well as prevent slinging
             // a_1 = (m2 * r_21) / (||r_21||² + eps²)^(3/2)
             vec4 compData = sharedPositions[j];
             vec3 r = compData.xyz - pos;
-            float distSqrd = dot(r,r) + EPSILON_SQRD; 
-            float distSixth = distSqrd * distSqrd * distSqrd; 
-            acc += (compData.w * r) / sqrt(distSixth);
+            float distSqrd = r.x*r.x + r.y*r.y + r.z*r.z + EPSILON_SQRD; 
+            float invDist = inversesqrt(distSqrd);
+            float invDistThird = invDist * invDist * invDist; 
+            acc += (compData.w * r) * invDistThird;
         }
         barrier();
     }

@@ -23,7 +23,7 @@ out vec3 VertexCol;
 const float minPointSize = 1.35f; 
 const float pointScale = 95.0f;
 
-float maxVel = 16; 
+const float maxVel = 18.0f; 
 
 vec3 BRcolormap(vec3 vel) {
     float velocityMagnitude = length(vel);

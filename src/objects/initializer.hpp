@@ -44,7 +44,7 @@ struct Initializer {
         }
     }
 
-    void galaxy(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities, int size = 40) {
+    void galaxy(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities, int size = 25) {
         std::uniform_real_distribution<float> tauDistr(0.f, TAU);
         std::uniform_real_distribution<float> massDistr(0.04, 0.15);
 

@@ -10,7 +10,7 @@
 #define PI 3.14159265359
 #define TAU 2*PI
 
-#define NUM_SUBSTEPS 6
+#define NUM_SUBSTEPS 5
 #define RENDER_FPS 60.f
 #define RENDER_DT (1.f / RENDER_FPS)
 #define SIM_DT (RENDER_DT / NUM_SUBSTEPS)
