@@ -5,6 +5,7 @@
 #include <thread>
 #include <iostream>
 #include "objects/nbody.hpp"
+#include "objects/octree/octreeRenderer.hpp"
 #include "include/glm/ext.hpp"
 #include "camera.hpp"
 #include "resources/resourcemanager.hpp"
@@ -34,6 +35,8 @@ struct Simulator {
     GLuint hdrFBO, sceneTexture;
 
     Bloom bloom;
+    OctreeRenderer octreeRenderer;
+    Octree octree;
 
     Simulator() {
         if (!glfwInit()) {
@@ -74,6 +77,9 @@ struct Simulator {
 
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // enable gl_PointSize
 
+        ResourceManager::initShaders();
+
+        #if ENABLE_BLOOM
         glGenFramebuffers(1, &hdrFBO);
         glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 
@@ -84,11 +90,17 @@ struct Simulator {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sceneTexture, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        ResourceManager::initShaders();
+        
         bloom = Bloom(sceneTexture);
+        #endif
+
         camera = std::make_unique<Camera>(glm::vec3{0.0f, 0.f, 0.0f});
-        nbody = std::make_unique<NBody>(5000);
+        nbody = std::make_unique<NBody>(500);
+        #if SHOW_OCTREE
+        octree = Octree(nbody->positions);
+        octree.build();
+        octreeRenderer = OctreeRenderer(&octree);
+        #endif
     }
     
     int run() {
@@ -107,8 +119,10 @@ struct Simulator {
             // rendering
             double renderStartTime = glfwGetTime();
             
+            #if ENABLE_BLOOM
             // first draw to this buffer
             glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+            #endif
 
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
             glClear(GL_COLOR_BUFFER_BIT);     
@@ -120,11 +134,18 @@ struct Simulator {
             camera->update(RENDER_DT);
             nbody->draw();
 
+            #if ENABLE_BLOOM
             // the scene is now rendered to sceneTexture
             // now we use this to generate a bloom texture
             bloom.blur();
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
             bloom.drawBlendedScene();
+            #endif
             
+            #if SHOW_OCTREE
+            octreeRenderer.prepare();
+            octreeRenderer.draw();
+            #endif
 
             // post rendering
             glfwSwapBuffers(window);

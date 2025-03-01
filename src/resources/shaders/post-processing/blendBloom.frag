@@ -6,7 +6,7 @@ in vec2 TexCoords;
 layout(binding = 0) uniform sampler2D sceneTexture; 
 layout(binding = 1) uniform sampler2D bloomTexture; 
 
-const float bloomIntensity = 1.45;
+const float bloomIntensity = 1.50;
 
 void main() {
     vec3 sceneColor = texture(sceneTexture, TexCoords).rgb;

@@ -1,11 +1,7 @@
 #pragma once
 #include "../include/glad/glad.h"
 #include "../constants.hpp"
-
-struct Texture {
-    glm::vec3 position;
-    glm::vec2 texCoords;
-};
+#include "util.hpp"
 
 struct Bloom {
     GLuint inputTex;
@@ -18,20 +14,13 @@ struct Bloom {
     
     GLuint quadVAO, quadVBO;
 
-    Texture frameBufferTexture[4] = {
-        {glm::vec3(-1.0f,  1.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-        {glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
-        {glm::vec3(1.0f,  1.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
-        {glm::vec3(1.0f, -1.0f, 0.0f), glm::vec2(1.0f, 0.0f)}
-    };
-
     Bloom() {}
     Bloom(GLuint inputTexture) {
         inputTex = inputTexture;
         blurShader = ResourceManager::getShader("gaussianBlur");
         blendShader = ResourceManager::getShader("bloomBlend");
 
-        // Generate and configure two textures
+        // configure ping pong buffers
         for (int i = 0; i < 2; i++) {
             glGenTextures(1, &pingPongTex[i]);
             glBindTexture(GL_TEXTURE_2D, pingPongTex[i]);
@@ -42,13 +31,13 @@ struct Bloom {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         }
 
-        // Screen texture quad VAO
+        // screen quad setup
         glGenVertexArrays(1, &quadVAO);
         glGenBuffers(1, &quadVBO);
         glBindVertexArray(quadVAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-        glBufferData(GL_ARRAY_BUFFER,  sizeof(this->frameBufferTexture), this->frameBufferTexture, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER,  sizeof(screenQuadTexture), screenQuadTexture, GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Texture), (void*)nullptr);
@@ -77,8 +66,6 @@ struct Bloom {
     }
 
     void drawBlendedScene() {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
         blendShader.use();
 
         glBindVertexArray(quadVAO);

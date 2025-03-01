@@ -33,6 +33,7 @@ namespace ResourceManager {
         addShader("nbodyVelocityCompute", "nbodyVelocities.glsl");
         addShader("gaussianBlur", "post-processing/gaussBlur.glsl");
         addShader("bloomBlend", "post-processing/blendBloom.vert", "post-processing/blendBloom.frag");
+        addShader("octree", "octree/octree.vert", "octree/octree.frag");
     }
 
     Shader& getShader(const std::string& shaderName) {

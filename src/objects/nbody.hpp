@@ -7,6 +7,7 @@
 #include "initializer.hpp"
 #include "../resources/resourcemanager.hpp"
 #include "../constants.hpp"
+#include "octree/octree.hpp"
 
 struct NBody {
     std::vector<glm::vec4> positions;
@@ -21,7 +22,7 @@ struct NBody {
 
     NBody(int amt): bodyInitializer(Initializer(amt)) {
         bodyAmt = amt;
-        positions.reserve(amt);
+        positions = std::vector<glm::vec4>(amt, glm::vec4(0.f));
         velocities = std::vector<glm::vec4>(amt, glm::vec4(0.f));
 
         drawShader = ResourceManager::getShader("pointShader");
@@ -38,7 +39,6 @@ struct NBody {
         // bodyInitializer.sphere(positions, velocities);
         // bodyInitializer.balanced(positions, velocities);
         // bodyInitializer.sunEarth(positions, velocities);
-            
         initBuffers();
     }
     
