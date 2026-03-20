@@ -98,9 +98,7 @@ struct Simulator {
         camera = std::make_unique<Camera>(glm::vec3{0.0f, 0.f, 0.0f});
         nbody = std::make_unique<NBody>(500);
         #if SHOW_OCTREE
-        octree = Octree(nbody->positions);
-        octree.build();
-        octreeRenderer = OctreeRenderer(&octree);
+        octreeRenderer = OctreeRenderer(&nbody->octree);
         #endif
     }
     

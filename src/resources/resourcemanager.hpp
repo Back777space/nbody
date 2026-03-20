@@ -31,6 +31,7 @@ namespace ResourceManager {
         addShader("pointShader", "points/point.vert", "points/point.frag");
         addShader("nbodyPositionCompute", "nbodyPositions.glsl");
         addShader("nbodyVelocityCompute", "nbodyVelocities.glsl");
+        addShader("nbodyVelocityComputeBH", "nbodyVelocitiesBH.glsl");
         addShader("gaussianBlur", "post-processing/gaussBlur.glsl");
         addShader("bloomBlend", "post-processing/blendBloom.vert", "post-processing/blendBloom.frag");
         addShader("octree", "octree/octree.vert", "octree/octree.frag");

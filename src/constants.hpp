@@ -16,4 +16,7 @@
 #define SIM_DT (RENDER_DT / NUM_SUBSTEPS)
 
 #define SHOW_OCTREE 0
-#define ENABLE_BLOOM 1
+#define ENABLE_BLOOM 0
+
+// Barnes-Hut opening angle: lower = more accurate, higher = faster (0.5 is typical)
+#define BH_THETA 0.5f
