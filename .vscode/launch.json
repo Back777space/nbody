@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch nbody",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/build/x64-${input:buildConfiguration}/${input:buildConfiguration}/nbody.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "integratedTerminal",
+            "preLaunchTask": "Build nbody"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "buildConfiguration",
+            "type": "pickString",
+            "description": "Build configuration",
+            "options": [
+                "Debug",
+                "Release"
+            ],
+            "default": "Debug"
+        }
+    ]
+}

@@ -43,24 +43,25 @@ struct Simulator {
             std::cerr << "Failed to initialize GLFW!" << std::endl;
             throw std::runtime_error("Failed to initialize GLFW!");
         }
-    
+
+        // must be set before glfwCreateWindow
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
         window = glfwCreateWindow(WIDTH, HEIGHT, "OpenGL Window", nullptr, nullptr);
         if (!window) {
             std::cerr << "Failed to create GLFW window!" << std::endl;
             glfwTerminate();
             throw std::runtime_error("Failed to create GLFW window!");
         }
-    
+
         glfwMakeContextCurrent(window);
         gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
-        
-        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
-        glfwSetCursorPosCallback(window, mouse_callback);
 
-        // enable compute shaders
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+        glfwSetCursorPosCallback(window, mouse_callback);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     
         // uniforms
         glCreateBuffers(1, &uboMatrices);
@@ -172,7 +173,10 @@ struct Simulator {
         return 0;
     }
     
-    void processInput() {    
+    void processInput() {
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            glfwSetWindowShouldClose(window, true);
+        }
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
             camera->handleKeyInput(Camera::InputEvent::FORWARDS);
         }

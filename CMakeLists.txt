@@ -13,7 +13,7 @@ set(SOURCES
     src/include/glad/glad.c  # GLAD source file
 )
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/src/include)
 
 # find and link OpenGL & GLFW
 find_package(OpenGL REQUIRED)
@@ -21,12 +21,17 @@ find_package(glfw3 REQUIRED)
 
 add_executable(nbody ${SOURCES})
 
-target_link_libraries(nbody 
-    OpenGL::GL 
+target_link_libraries(nbody
+    OpenGL::GL
     glfw
-    dl
 )
+
+if(NOT WIN32)
+    target_link_libraries(nbody dl)
+endif()
 
 # set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 # set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+if(NOT MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+endif()

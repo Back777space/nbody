@@ -6,8 +6,8 @@
 namespace ResourceManager {
     static std::map<std::string, Shader> shaders = {};
     
-    // relative to build folder
-    static std::string shaderDirectory = "../src/resources/shaders/";
+    // relative to working directory (project root)
+    static std::string shaderDirectory = "src/resources/shaders/";
 
     void addShader(std::string shaderName, std::string vertexPath, std::string fragmentPath = "") {
         if (shaders.count(shaderName) != 0) {

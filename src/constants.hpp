@@ -2,8 +2,8 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 
-#define WIDTH 950
-#define HEIGHT 950
+#define WIDTH 1280
+#define HEIGHT 720
 
 #define WORKGROUP_SIZE 256
 

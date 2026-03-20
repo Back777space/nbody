@@ -1,0 +1,29 @@
+{
+    "files.associations": {
+        "*.glsl": "glsl",
+        "*.vert": "glsl",
+        "*.frag": "glsl",
+        "*.comp": "glsl"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "cmake.configureOnOpen": false,
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.vs": true,
+        "**/out": false
+    },
+    "search.exclude": {
+        "**/out/build": true,
+        "**/vcpkg_installed": true,
+        "**/.vs": true
+    },
+    "editor.formatOnSave": false,
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/src/include"
+    ],
+    "C_Cpp.default.compilerPath": "D:/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe",
+    "C_Cpp.default.cppStandard": "c++17",
+    "C_Cpp.default.cStandard": "c17"
+}

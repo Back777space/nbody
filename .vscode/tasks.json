@@ -1,0 +1,45 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build nbody",
+            "type": "shell",
+            "command": ".\\build.bat",
+            "args": [
+                "${input:buildConfiguration}"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Configure CMake",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset",
+                "x64-${input:buildConfiguration}"
+            ],
+            "problemMatcher": [],
+            "detail": "Configure CMake with selected preset"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "buildConfiguration",
+            "type": "pickString",
+            "description": "Build configuration",
+            "options": [
+                "Debug",
+                "Release"
+            ],
+            "default": "Debug"
+        }
+    ]
+}
