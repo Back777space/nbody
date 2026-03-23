@@ -3,28 +3,26 @@
 pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
     cmake
-    libgcc
+    gcc
     gdb
+    pkg-config
   ];
 
   buildInputs = with pkgs; [
-    glfw
     glfw3
     glm
+    imgui
     libGL
-    libGLU
     mesa
-    pkg-config
 
     xorg.libXcursor
     xorg.libXinerama
     xorg.libXext
     xorg.libXxf86vm
-
-    libdecor
+    xorg.libX11
   ];
 
   shellHook = ''
-    echo "OpenGL development environment is ready!"
+    echo "N-Body OpenGL development environment loaded!"
   '';
 }

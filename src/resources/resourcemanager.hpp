@@ -6,7 +6,6 @@
 namespace ResourceManager {
     static std::map<std::string, Shader> shaders = {};
     
-    // relative to working directory (project root)
     static std::string shaderDirectory = "src/resources/shaders/";
 
     void addShader(std::string shaderName, std::string vertexPath, std::string fragmentPath = "") {
@@ -28,13 +27,20 @@ namespace ResourceManager {
     }
 
     void initShaders() {
-        addShader("pointShader", "points/point.vert", "points/point.frag");
-        addShader("nbodyPositionCompute", "nbodyPositions.glsl");
-        addShader("nbodyVelocityCompute", "nbodyVelocities.glsl");
-        addShader("nbodyVelocityComputeBH", "nbodyVelocitiesBH.glsl");
-        addShader("gaussianBlur", "post-processing/gaussBlur.glsl");
-        addShader("bloomBlend", "post-processing/blendBloom.vert", "post-processing/blendBloom.frag");
-        addShader("octree", "octree/octree.vert", "octree/octree.frag");
+        addShader("pointShader",              "points/point.vert",                    "points/point.frag");
+        addShader("nbodyPositionCompute",     "physics/nbodyPositions.glsl");
+        addShader("nbodyVelocityCompute",     "physics/nbodyVelocities.glsl");
+        addShader("nbodyVelocityComputeBH",   "physics/nbodyVelocitiesBH.glsl");
+        addShader("nbodyVelocityComputeGPUBH","physics/nbodyVelocitiesGPUBH.glsl");
+        addShader("mortonCodes",              "bvh/mortonCodes.glsl");
+        addShader("radixHistogram",           "bvh/radixHistogram.glsl");
+        addShader("radixPrefixSum",           "bvh/radixPrefixSum.glsl");
+        addShader("radixScatter",             "bvh/radixScatter.glsl");
+        addShader("buildRadixTree",           "bvh/buildRadixTree.glsl");
+        addShader("propagateCoM",             "bvh/propagateCoM.glsl");
+        addShader("gaussianBlur",             "post-processing/gaussBlur.glsl");
+        addShader("bloomBlend",               "post-processing/blendBloom.vert", "post-processing/blendBloom.frag");
+        addShader("octree",                   "octree/octree.vert",              "octree/octree.frag");
     }
 
     Shader& getShader(const std::string& shaderName) {

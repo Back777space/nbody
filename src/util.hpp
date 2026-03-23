@@ -14,6 +14,12 @@ float lerp(float x, float a, float b, float c, float d) {
     return c + ((x - a) / (b - a)) * (d - c);
 }
 
+static int nextPow2(int n) {
+    int p = 1;
+    while (p < n) p <<= 1;
+    return p;
+}
+
 template<class T>
 std::ostream& operator<<(std::ostream& out, const std::vector<T>& obj) {
     out << "[";

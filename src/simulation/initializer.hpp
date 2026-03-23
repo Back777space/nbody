@@ -12,7 +12,7 @@ struct Initializer {
     float minDist = 0.01;
     float velScale = 1.2;
 
-    std::mt19937 engine{ std::random_device{}() };
+    std::mt19937 engine{ 42 };
 
     Initializer(size_t amt) {
         bodyAmount = amt;
@@ -123,6 +123,61 @@ struct Initializer {
         velocities[1] = glm::vec4(0.f, 3.5f, 0.f, 0.f);
     }
     
+    // Two disk galaxies on a collision course.
+    // Galaxy 2 is tilted 45° relative to galaxy 1 for more interesting dynamics.
+    void twoGalaxies(std::vector<glm::vec4>& positions, std::vector<glm::vec4>& velocities,
+                     float radius = 60.f, float separation = 130.f, float approachSpeed = 1.5f) {
+        std::uniform_real_distribution<float> tauDistr(0.f, TAU);
+        std::uniform_real_distribution<float> massDistr(0.005f, 0.02f);
+        std::normal_distribution<float> thickDistr(0.f, 0.02f); // Gaussian thickness as fraction of radius
+
+        size_t half = bodyAmount / 2;
+
+        for (int g = 0; g < 2; g++) {
+            size_t start = g * half;
+            size_t count = (g == 0) ? half : bodyAmount - half;
+            float sqrtCount = std::sqrt((float)count);
+
+            float zCenter = (g == 0) ? -separation : separation;
+            float bulkVz  = (g == 0) ?  approachSpeed : -approachSpeed;
+
+            // Galaxy 2 is tilted 45° around the X axis
+            float tilt = (g == 1) ? glm::radians(45.f) : 0.f;
+            float cosT = glm::cos(tilt), sinT = glm::sin(tilt);
+
+            for (size_t i = 0; i < count; i++) {
+                float alpha = tauDistr(engine);
+                float mass  = massDistr(engine);
+                float r     = radius * std::sqrt((float)i) / sqrtCount;
+                float thick = thickDistr(engine) * radius;
+
+                // Disk in XY plane, then optionally tilted around X axis
+                float lx = r * glm::cos(alpha);
+                float ly = r * glm::sin(alpha);
+                float lz = thick;
+
+                // Circular orbital speed: sqrt(r) profile, same scale as galaxy()
+                float speed = velScale * std::sqrt(r / radius + 0.01f);
+                float vx = -glm::sin(alpha) * speed;
+                float vy =  glm::cos(alpha) * speed;
+
+                // Apply tilt rotation (around X axis) to position and velocity
+                positions[start + i] = glm::vec4(
+                    100.f + lx,
+                    ly * cosT - lz * sinT,
+                    zCenter + ly * sinT + lz * cosT,
+                    mass
+                );
+                velocities[start + i] = glm::vec4(
+                    vx,
+                    vy * cosT,
+                    bulkVz + vy * sinT,
+                    0.f
+                );
+            }
+        }
+    }
+
     void cube(
         std::vector<glm::vec4>& positions,
         const glm::vec3& center = glm::vec3(0.0f),

@@ -86,6 +86,12 @@ class Camera {
             return this->position;
         }
 
+        void resetMouseState(double xPos, double yPos) {
+            firstMouse = true;
+            lastX = xPos;
+            lastY = yPos;
+        }
+
         void update(float dt) {
             if (movingDirection.x + movingDirection.y + movingDirection.z != 0.0) {
                 glm::vec3 directionNormalized = glm::normalize(movingDirection);

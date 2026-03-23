@@ -26,9 +26,8 @@ layout (binding = 3, std430) readonly buffer octreeBuffer {
 
 uniform int bodyAmt;
 uniform float dt;
-uniform float theta; // Barnes-Hut opening angle (lower = more accurate, 0.5 is typical)
-
-const float EPSILON_SQRD = 0.0005;
+uniform float theta;
+uniform float epsilon;
 
 vec3 computeAcc(vec3 pos) {
     vec3 acc = vec3(0.0);
@@ -44,7 +43,7 @@ vec3 computeAcc(vec3 pos) {
         if (node.centerOfMass.w == 0.0) continue;
 
         vec3 r = node.centerOfMass.xyz - pos;
-        float distSqrd = dot(r, r) + EPSILON_SQRD;
+        float distSqrd = dot(r, r) + epsilon;
         float dist = sqrt(distSqrd);
 
         // leaf: no children exist
@@ -55,8 +54,9 @@ vec3 computeAcc(vec3 pos) {
 
         float s = node.cell.w * 2.0; // cell width
 
-        if (isLeaf || (s / dist) < theta) {
+        if (isLeaf || (s / dist) < theta || top >= 56) {
             // treat entire node as a single mass
+            // top >= 56: stack too full to safely push up to 8 children: approximate as leaf
             float invDist = inversesqrt(distSqrd);
             float invDistThird = invDist * invDist * invDist;
             acc += (node.centerOfMass.w * r) * invDistThird;

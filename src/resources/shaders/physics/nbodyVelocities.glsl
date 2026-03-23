@@ -17,8 +17,7 @@ layout (binding = 2, std430) buffer accBuffer {
 
 uniform int bodyAmt;
 uniform float dt;
-
-const float EPSILON_SQRD = 0.0005;
+uniform float epsilon;
 
 shared vec4 sharedPositions[gl_WorkGroupSize.x];
 
@@ -43,7 +42,7 @@ vec3 computeAcc(vec3 pos, float mass, uint tid) {
             // a_1 = (m2 * r_21) / (||r_21||² + eps²)^(3/2)
             vec4 compData = sharedPositions[j];
             vec3 r = compData.xyz - pos;
-            float distSqrd = r.x*r.x + r.y*r.y + r.z*r.z + EPSILON_SQRD; 
+            float distSqrd = r.x*r.x + r.y*r.y + r.z*r.z + epsilon; 
             float invDist = inversesqrt(distSqrd);
             float invDistThird = invDist * invDist * invDist; 
             acc += (compData.w * r) * invDistThird;
