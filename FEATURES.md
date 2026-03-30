@@ -99,10 +99,3 @@ CPU octree cells are drawn as wireframe AABBs. Only active in `BH_CPU` mode.
 | `SHOW_OCTREE` | 0 | Toggle octree wireframe (BH_CPU only) |
 | `BH_DIAGNOSTICS` | 1 | Enable startup verification and energy tracking |
 | `ENERGY_SNAPSHOT_INTERVAL` | 100.0 | Sim seconds between energy snapshots |
-
-## Build
-
-- **Platform**: Windows, Visual Studio 2022, OpenGL 4.5
-- **Dependencies**: GLFW (via vcpkg), GLAD (bundled), GLM (bundled), ImGui (bundled)
-- **Build system**: CMake with `CMakePresets.json` (`x64-Debug` / `x64-Release`)
-- **Build script**: `build.bat [Debug|Release]`

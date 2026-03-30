@@ -115,14 +115,3 @@ Uses `GL_TIME_ELAPSED` queries to time each pipeline stage for one full substep:
   Total (1x)    : 7.888 ms
   Proj. FPS (10x substeps): 12.7 FPS
 ```
-
-## Failure Guide
-
-| Symptom | Likely cause |
-|---|---|
-| Check 1 FAIL (not sorted) | Radix sort bug: check `radixScatter.glsl` |
-| Check 2 FAIL (code mismatch) | Morton code formula mismatch between CPU and GPU, or `worldHalfSize` uniform not set |
-| Check 3 FAIL (leaves unreachable) | `buildRadixTree.glsl` range/split logic, or parent pointer corruption |
-| Check 4 FAIL (root mass) | `propagateCoM.glsl` not reaching root, or leaf init wrong |
-| Check 5 FAIL (force error) | Force traversal bug, wrong `theta` uniform, or `EPSILON_SQRD` mismatch between shader and CPU reference |
-| Energy drift > 5% | Timestep too large (`NUM_SUBSTEPS`), `BH_THETA` too large, or close encounters |
